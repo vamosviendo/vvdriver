@@ -204,10 +204,10 @@ class MiFirefox(webdriver.Firefox):
     def opciones_de_campo(self, campo: str, form: MiWebElement | None = None) -> list[str]:
         form = form or self.encontrar_elemento('form', By.TAG_NAME)
         try:
-            select = form.esperar_elemento(f'id_{campo}')
+            select = form.encontrar_elemento(f'id_{campo}')
         except NoSuchElementException:
-            select = form.esperar_elemento(f'id_select_{campo}')
-        return [x.text for x in select.esperar_elementos('option', By.TAG_NAME)]
+            select = form.encontrar_elemento(f'id_select_{campo}')
+        return [x.text for x in select.encontrar_elementos('option', By.TAG_NAME)]
 
     @staticmethod
     def completar_checkbox(checkbox: WebElement, boolvalue: bool):
