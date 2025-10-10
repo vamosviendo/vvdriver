@@ -144,11 +144,11 @@ class MiFirefox(webdriver.Firefox):
         webdriver.ActionChains(self).move_by_offset(horiz, vert).perform()
 
     @esperar
-    def esperar_elemento(self, elemento: str, criterio: str = By.ID) -> MiWebElement:
+    def encontrar_elemento(self, elemento: str, criterio: str = By.ID) -> MiWebElement:
         return cast(MiWebElement, self.find_element(criterio, elemento))
 
     @esperar
-    def esperar_elementos(self, selector: str, criterio: str = By.CLASS_NAME, fail: bool = True) -> list[MiWebElement]:
+    def encontrar_elementos(self, selector: str, criterio: str = By.CLASS_NAME, fail: bool = True) -> list[MiWebElement]:
         elementos = cast(list[MiWebElement], self.find_elements(criterio, selector))
         if fail:
             assert len(elementos) != 0, \
@@ -156,7 +156,7 @@ class MiFirefox(webdriver.Firefox):
         return elementos
 
     @esperar
-    def esperar_que_no_este(self, elemento, criterio=By.ID):
+    def no_encontrar_elemento(self, elemento, criterio=By.ID):
         try:
             self.find_element(criterio, elemento)
             raise AssertionError(
@@ -166,7 +166,7 @@ class MiFirefox(webdriver.Firefox):
             pass
 
     @esperar
-    def esperar_que_desaparezca_de_elementos(
+    def verificar_que_elemento_desaparecio(
             self,
             selector: str,
             atributo: str,
@@ -186,7 +186,7 @@ class MiFirefox(webdriver.Firefox):
         return elementos
 
     @esperar
-    def esperar_elemento_con_atributo(
+    def encontrar_elemento_con_atributo(
             self, selector: str, atributo: str, valor: str, criterio: str = By.CLASS_NAME) -> MiWebElement:
         elementos = cast(list[MiWebElement], self.find_elements(criterio, selector))
 
@@ -197,12 +197,12 @@ class MiFirefox(webdriver.Firefox):
             raise AssertionError(
                 f'{selector} con {atributo} {valor} no encontrado')
 
-    def esperar_enlace_con_titulo(self, titulo: str) -> MiWebElement:
-        return self.esperar_elemento_con_atributo(
+    def encontrar_link_con_titulo(self, titulo: str) -> MiWebElement:
+        return self.encontrar_elemento_con_atributo(
             "a", "title", titulo, By.TAG_NAME)
 
-    def esperar_opciones_de_campo(self, campo: str, form: MiWebElement | None = None) -> list[str]:
-        form = form or self.esperar_elemento('form', By.TAG_NAME)
+    def opciones_de_campo(self, campo: str, form: MiWebElement | None = None) -> list[str]:
+        form = form or self.encontrar_elemento('form', By.TAG_NAME)
         try:
             select = form.esperar_elemento(f'id_{campo}')
         except NoSuchElementException:
@@ -217,7 +217,7 @@ class MiFirefox(webdriver.Firefox):
     def completar(self, id_campo: str, texto: str | bool | int | float | date, criterio: str = By.ID):
         """ Completa un campo de texto en un form, o selecciona un valor
             de un campo select."""
-        campo = self.esperar_elemento(id_campo, criterio=criterio)
+        campo = self.encontrar_elemento(id_campo, criterio=criterio)
         try:
             campo.clear()
             campo.send_keys(str(texto))
@@ -225,7 +225,7 @@ class MiFirefox(webdriver.Firefox):
             try:
                 Select(campo).select_by_visible_text(texto)
             except UnexpectedTagNameException:
-                if type(texto) == bool:
+                if type(texto) is bool:
                     valor = texto
                 elif texto.lower() == 'true':
                     valor = True
@@ -236,7 +236,7 @@ class MiFirefox(webdriver.Firefox):
                 pass
 
     def pulsar(self, boton: str = 'id_btn_submit', crit: str = By.ID):
-        self.esperar_elemento(boton, crit).click()
+        self.encontrar_elemento(boton, crit).click()
 
     def completar_form(self, **kwargs: str | date):
         for key, value in kwargs.items():
@@ -253,7 +253,7 @@ class MiFirefox(webdriver.Firefox):
                 value = str(value)
             elif isinstance(value, MiModel):
                 value = str(value.pk)
-            campo = self.esperar_elemento(f"id_{key}")
+            campo = self.encontrar_elemento(f"id_{key}")
             assert campo.get_attribute("value") == value
 
     def controlar_modelform(self, instance: MiModel):
@@ -262,4 +262,4 @@ class MiFirefox(webdriver.Firefox):
         })
 
     def egresar(self):
-        self.esperar_elemento('logout', By.LINK_TEXT).click()
+        self.encontrar_elemento('logout', By.LINK_TEXT).click()
