@@ -94,11 +94,11 @@ class MiWebElement(WebElement):
         return self.img_url()[len('/media/'):]
 
     @esperar
-    def esperar_elemento(self, elemento: str, criterio: str = By.ID) -> Self:
+    def encontrar_elemento(self, elemento: str, criterio: str = By.ID) -> Self:
         return self.find_element(criterio, elemento)
 
     @esperar
-    def esperar_elementos(self, selector: str, criterio: str = By.CLASS_NAME, fail: bool = True) -> list[Self]:
+    def encontrar_elementos(self, selector: str, criterio: str = By.CLASS_NAME, fail: bool = True) -> list[Self]:
         elementos = self.find_elements(criterio, selector)
         if fail:
             assert len(elementos) != 0, \
@@ -106,7 +106,7 @@ class MiWebElement(WebElement):
         return elementos
 
     @esperar
-    def esperar_elemento_con_atributo(
+    def encontrar_elemento_con_atributo(
             self, selector: str, atributo: str, valor: str, criterio: str = By.CLASS_NAME) -> Self:
         elementos = self.find_elements(criterio, selector)
         try:
@@ -117,12 +117,12 @@ class MiWebElement(WebElement):
                 f'{selector} con {atributo} {valor} no encontrado')
 
     @esperar
-    def esperar_enlace_con_titulo(self, titulo: str) -> Self:
-        return self.esperar_elemento_con_atributo(
+    def encontrar_link_con_titulo(self, titulo: str) -> Self:
+        return self.encontrar_elemento_con_atributo(
             "a", "title", titulo, By.TAG_NAME)
 
     def pulsar(self, boton: str = 'id_btn_submit', crit: str = By.ID):
-        self.esperar_elemento(boton, crit).click()
+        self.encontrar_elemento(boton, crit).click()
 
 
 class MiFirefox(webdriver.Firefox):
