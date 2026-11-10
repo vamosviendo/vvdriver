@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import cast, Self
+from typing import cast, Self, Protocol
 from urllib.parse import urlparse
 
+from django.db.models import Model
 from selenium import webdriver
 from selenium.common.exceptions import InvalidElementStateException, \
     NoSuchElementException, UnexpectedTagNameException
@@ -11,8 +12,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.select import Select
 
-from vvmodel.models import MiModel
 from .helpers import esperar
+
+
+class ModeloConFormFields(Protocol):
+    form_fields: tuple[str]
 
 
 class MiWebElement(WebElement):
@@ -243,7 +247,7 @@ class MiFirefox(webdriver.Firefox):
             self.completar(f"id_{key}", value)
         self.pulsar()
 
-    def controlar_form(self, **kwargs: str | date | float | MiModel):
+    def controlar_form(self, **kwargs: str | date | float | Model):
         for key, value in kwargs.items():
             if value is None:
                 value = ""
@@ -251,12 +255,12 @@ class MiFirefox(webdriver.Firefox):
                 value = value.strftime('%Y-%m-%d')
             elif type(value) is float:
                 value = str(value)
-            elif isinstance(value, MiModel):
+            elif isinstance(value, Model):
                 value = str(value.pk)
             campo = self.encontrar_elemento(f"id_{key}")
             assert campo.get_attribute("value") == value
 
-    def controlar_modelform(self, instance: MiModel):
+    def controlar_modelform(self, instance: ModeloConFormFields):
         self.controlar_form(**{
             k: getattr(instance, k) for k in instance.form_fields
         })
